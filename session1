@@ -1,0 +1,173 @@
+### Reflection Log – Session 1
+
+In this session, I worked through the setup of the core tools (R, RStudio, Quarto, Git, and command line) and reviewed basic data analysis and visualisation techniques in R. The main focus was not only on executing commands, but on understanding how these tools fit together in a data science workflow.
+
+
+
+#### 1. Command Line and File Handling
+
+I practiced basic command line operations such as creating files and folders (`mkdir`, `touch`), listing contents (`ls`), and moving files (`mv`).
+
+One issue I encountered was incorrect file paths when moving files. For example, I initially used relative paths incorrectly (e.g., `Desktop/...` instead of `~/Desktop/...`). This helped me understand the importance of:
+
+* distinguishing between **relative paths (`./`, `../`) and absolute paths (`~/`)**
+* always checking file locations using `ls` before executing commands
+
+I also learned that small mistakes in filenames (e.g., adding an extra “s”) immediately cause errors, which reinforced the need for precision in CLI work.
+
+
+
+#### 2. Quarto and Rendering
+
+I learned how to create and render `.qmd` files using both RStudio and the command line (`quarto render`).
+
+A key insight was that:
+
+* rendering produces an HTML file in the same directory
+* images must be referenced using correct **relative paths**
+
+I initially failed to display an image because the filename in the code did not match the actual file. This clarified that:
+
+> file paths in Quarto must exactly match both location and filename.
+
+
+
+#### 3. Git Basics
+
+I initialized a Git repository using:
+
+```bash
+git init
+git add
+git commit
+```
+
+I also explored `git status` and `git log` to understand repository state and history.
+
+A major mistake I made was working in the wrong directory, which led to confusing paths like `../README.md`. This showed me that:
+
+> a Git repository should always be initialized in the **project root directory**
+
+I also learned the difference between:
+
+* **untracked files**
+* **staged files**
+* **committed files**
+
+and how they correspond to the Git workflow.
+
+
+
+#### 4. Practise in  R
+
+I worked with the `palmerpenguins` dataset and clarified an important concept:
+
+> a package can contain multiple objects, including datasets (e.g., `penguins`)
+
+I learned how to inspect available data using:
+
+```r
+data(package = "palmerpenguins")
+```
+
+and how to explore data using:
+
+* `head()`
+* `summary()`
+* `glimpse()`
+
+
+
+#### 5. Debugging dplyr and Pipe Issues
+
+I encountered several errors when using `%>%` and `filter()`:
+
+* `object 'species' not found`
+
+This was caused by two different issues:
+
+1. **Running incomplete pipe expressions**
+2. **Using the wrong `filter()` function (from `stats` instead of `dplyr`)**
+
+This helped me understand that:
+
+* R does not “guess” the correct function
+* packages like `dplyr` must be explicitly loaded
+* pipe operations must be executed as a complete block
+
+
+
+#### 6. ggplot2 Errors and Fixes
+
+I also encountered a ggplot error:
+
+```text
+data must be a data.frame, not a mapping object
+```
+
+This was due to incorrectly passing `aes()` without specifying data.
+
+I learned when using pipes, it is safer to write:
+
+```r
+ggplot(data = ., aes(...))
+```
+
+
+
+#### 7. Handling Missing Data
+
+When creating plots, I received a warning:
+
+```text
+Removed 1 row containing missing values
+```
+
+I learned that:
+
+* this is not an error
+* ggplot automatically removes rows with `NA`
+
+and that missing data should be considered explicitly when analysing results.
+
+
+
+#### 8. Data Transformation and Visualisation
+
+I used `pivot_longer()` to reshape the dataset and created faceted boxplots:
+
+```r
+facet_wrap(~ feature, scales = "free_y")
+```
+
+Key understanding:
+
+* `facet_wrap(~ feature)` creates one plot per variable
+* `scales = "free_y"` allows each plot to use its own y-axis range
+
+This is important when variables have different units (e.g., mm vs grams).
+
+
+
+#### 9. General Reflection
+
+Overall, this session highlighted that many errors were not due to complex concepts, but due to:
+
+* incorrect paths
+* missing package loading
+* incomplete code execution
+* misunderstanding of how functions receive data
+
+The most important takeaway is:
+
+> data analysis is not just about writing code, but about understanding how tools, data, and workflows interact.
+
+
+
+#### 10. Next Steps
+
+For future sessions, I aim to:
+
+* improve fluency with Git workflows (especially GitHub integration)
+* reduce debugging time by systematically checking errors (data → functions → environment)
+* structure my work more clearly using Quarto
