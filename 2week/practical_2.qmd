@@ -180,3 +180,132 @@ plot_penguin_bills <- function(data, species_name, x_var, y_var, title = NULL) {
 }
 ```
 
+Exercise 3: Error Handling
+1.Add input validation to plot_penguin_bills() from Exercise 2 so that it fails with a useful message when:
+species is not one of the three valid species ("Adelie", "Chinstrap", "Gentoo").
+x_var or y_var is not a column of the penguins data frame.
+x_var or y_var refers to a non-numeric column.
+
+2.Compare the error messages you get now vs. before. Which version would be easier to debug at 11pm the night before an assignment deadline?
+
+Answer: The updated version provides much more informative and user-friendly error messages.
+Instead of generic errors such as "object not found" or silent failures, the function now explicitly checks inputs and explains what went wrong and how to fix it.
+This makes debugging significantly easier, because the user can quickly identify the issue without having to trace through the code.
+
+Input validation
+```{r}
+plot_penguin_bills <- function(data, species_name, x_var, y_var, title = NULL) {
+  
+  # ---- 1. 检查 species ----
+  valid_species <- c("Adelie", "Chinstrap", "Gentoo")
+  if (!species_name %in% valid_species) {
+    stop("Invalid species. Must be one of: ", paste(valid_species, collapse = ", "))
+  }
+  
+  # ---- 2. 检查列是否存在 ----
+  x_name <- deparse(substitute(x_var))
+  y_name <- deparse(substitute(y_var))
+  
+  if (!x_name %in% names(data)) {
+    stop("Column '", x_name, "' not found in data.")
+  }
+  
+  if (!y_name %in% names(data)) {
+    stop("Column '", y_name, "' not found in data.")
+  }
+  
+  # ---- 3. 检查是否为数值型 ----
+  if (!is.numeric(data[[x_name]])) {
+    stop("Column '", x_name, "' must be numeric.")
+  }
+  
+  if (!is.numeric(data[[y_name]])) {
+    stop("Column '", y_name, "' must be numeric.")
+  }
+  
+  # ---- 4. 生成默认标题 ----
+  if (is.null(title)) {
+    title <- paste("Scatter plot of", x_name, "vs", y_name, "for", species_name)
+  }
+  
+  # ---- 5. 正常执行 ----
+  data %>%
+    dplyr::filter(species == species_name) %>%
+    ggplot2::ggplot(ggplot2::aes(x = {{ x_var }}, y = {{ y_var }})) +
+    ggplot2::geom_point() +
+    ggplot2::labs(title = title, x = x_name, y = y_name)
+}
+```
+cli Version
+```{r}
+library(cli)
+plot_penguin_bills <- function(data, species_name, x_var, y_var, title = NULL) {
+  
+  # ---- 1. 检查 species ----
+  valid_species <- c("Adelie", "Chinstrap", "Gentoo")
+  
+  if (!species_name %in% valid_species) {
+    cli::cli_abort(c(
+      "Invalid {.arg species_name}.",
+      "x" = "You provided: {.val {species_name}}",
+      "i" = "Valid options are: {.val {valid_species}}"
+    ))
+  }
+  
+  # ---- 2. 获取变量名 ----
+  x_name <- deparse(substitute(x_var)) 
+  y_name <- deparse(substitute(y_var))
+# substitute() = 拿到“代码本身”，deparse() = 转成字符串
+  
+  # ---- 3. 检查列是否存在 ----
+  if (!x_name %in% names(data)) {
+    cli::cli_abort(c(
+      "Column {.val {x_name}} not found in {.arg data}.",
+      "i" = "Available columns: {.val {names(data)}}"
+    ))
+  }
+  
+  if (!y_name %in% names(data)) {
+    cli::cli_abort(c(
+      "Column {.val {y_name}} not found in {.arg data}.",
+      "i" = "Available columns: {.val {names(data)}}"
+    ))
+  }
+  
+  # ---- 4. 检查是否 numeric ----
+  if (!is.numeric(data[[x_name]])) {
+    cli::cli_abort(c(
+      "Column {.val {x_name}} must be numeric.",
+      "x" = "Current type: {.val {class(data[[x_name]])}}"
+    ))
+  }
+  
+  if (!is.numeric(data[[y_name]])) {
+    cli::cli_abort(c(
+      "Column {.val {y_name}} must be numeric.",
+      "x" = "Current type: {.val {class(data[[y_name]])}}"
+    ))
+  }
+  
+  # ---- 5. 默认标题 ----
+  if (is.null(title)) {
+    title <- paste("Scatter plot of", x_name, "vs", y_name, "for", species_name)
+  }
+  
+  # ---- 6. 绘图 ----
+  data %>%
+    dplyr::filter(species == species_name) %>%
+    ggplot2::ggplot(ggplot2::aes(x = {{ x_var }}, y = {{ y_var }})) +
+    ggplot2::geom_point() +
+    ggplot2::labs(title = title, x = x_name, y = y_name)
+}
+```
+test
+```{r}
+plot_penguin_bills(penguins, "Penguin", body_mass_g, flipper_length_mm, title = NULL)
+
+plot_penguin_bills(penguins, "Adelie", island, species, title = NULL)
+
+plot_penguin_bills(penguins, "Adelie", body_mass_g, flipper_length_mm, title = NULL)
+```
+
