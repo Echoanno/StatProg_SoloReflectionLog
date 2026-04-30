@@ -361,3 +361,139 @@ This leads to exponential time complexity O(2^n).
 
 In contrast, the iterative version computes each value only once,
 resulting in linear time complexity O(n).
+
+Exercise 5: Refactoring
+
+A guiding principle: DRY — Don’t Repeat Yourself. If the same block of code appears in more than one place, there’s one behaviour with multiple copies. Change one, forget the others, and they drift out of sync.
+
+Task 1: Spot the repetition
+Consider the following function that produces a small summary for a single species:
+
+```{r}
+summarise_species <- function(species_name) {
+  adelie_mean_bill <- mean(penguins$bill_length_mm[penguins$species == "Adelie"], na.rm = TRUE)
+  gentoo_mean_bill <- mean(penguins$bill_length_mm[penguins$species == "Gentoo"], na.rm = TRUE)
+  chinstrap_mean_bill <- mean(penguins$bill_length_mm[penguins$species == "Chinstrap"], na.rm = TRUE)
+
+  adelie_mean_mass <- mean(penguins$body_mass_g[penguins$species == "Adelie"], na.rm = TRUE)
+  gentoo_mean_mass <- mean(penguins$body_mass_g[penguins$species == "Gentoo"], na.rm = TRUE)
+  chinstrap_mean_mass <- mean(penguins$body_mass_g[penguins$species == "Chinstrap"], na.rm = TRUE)
+
+  if (species_name == "Adelie") {
+    cat("Adelie — mean bill:", adelie_mean_bill, "mean mass:", adelie_mean_mass, "\n")
+  } else if (species_name == "Gentoo") {
+    cat("Gentoo — mean bill:", gentoo_mean_bill, "mean mass:", gentoo_mean_mass, "\n")
+  } else if (species_name == "Chinstrap") {
+    cat("Chinstrap — mean bill:", chinstrap_mean_bill, "mean mass:", chinstrap_mean_mass, "\n")
+  }
+}
+```
+
+1.Identify every piece of repetition in this function. How many distinct ideas are actually being expressed?
+
+Despite all this repetition, the function expresses only three distinct ideas:
+Filter the data for a given species
+Compute summary statistics (mean bill length and mean body mass)
+Display the result for that species
+
+2.Rewrite the function so that:
+the per-species means are not hard-coded,
+there’s no long if/else chain on species_name,
+the code would still work if a fourth species showed up in the data.
+
+```{r}
+summarise_species <- function(data, species_name) {
+  if (!species_name %in% unique(data$species)) {
+    stop("Invalid species name.")
+  }
+  
+  data_filtered <- data %>%
+    dplyr::filter(species == species_name)
+  
+  mean_bill <- mean(data_filtered$bill_length_mm, na.rm = TRUE)
+  mean_mass <- mean(data_filtered$body_mass_g, na.rm = TRUE)
+  
+  cat(species_name, "— mean bill:", mean_bill,
+      "mean mass:", mean_mass, "\n")
+}
+
+summarise_species(penguins, "Adelie")
+```
+
+Task 2: Refactor a long function into helpers
+
+Take the following monolithic function. It loads a dataset, cleans it, summarises it, and plots it — all in one place.
+
+```{r}
+penguin_report <- function(species_name) {
+  # load
+  library(palmerpenguins)
+  library(tidyverse)
+  data <- penguins
+
+  # clean
+  data <- data[!is.na(data$bill_length_mm) & !is.na(data$body_mass_g), ]
+
+  # filter
+  data <- data[data$species == species_name, ]
+
+  # summarise
+  cat("n =", nrow(data), "\n")
+  cat("mean bill length:", mean(data$bill_length_mm), "\n")
+  cat("mean body mass:",   mean(data$body_mass_g),    "\n")
+
+  # plot
+  ggplot(data, aes(x = bill_length_mm, y = body_mass_g)) +
+    geom_point() +
+    labs(title = paste("Bill length vs. body mass —", species_name))
+}
+
+penguin_report("Gentoo")
+```
+Refactor it into at least three helper functions. Each helper should do one thing, and the top-level penguin_report() should read like a recipe: load, then clean, then summarise, then plot.
+
+Each helper is now independently testable, and the top-level function reads top-to-bottom as the story of the analysis.
+
+```{r}
+load_penguins <- function() {
+  library(palmerpenguins)
+  library(tidyverse)
+  return(penguins)
+}
+
+clean_penguins <- function(data) {
+  data[!is.na(data$bill_length_mm) & !is.na(data$body_mass_g), ]
+}
+
+filter_species <- function(data, species_name) {
+  data[data$species == species_name, ]
+}
+
+summarise_penguins <- function(data) {
+  cat("n =", nrow(data), "\n")
+  cat("mean bill length:", mean(data$bill_length_mm), "\n")
+  cat("mean body mass:",   mean(data$body_mass_g),    "\n")
+}
+
+plot_penguins <- function(data, species_name) {
+  ggplot(data, aes(x = bill_length_mm, y = body_mass_g)) +
+    geom_point() +
+    labs(title = paste("Bill length vs. body mass —", species_name))
+}
+
+penguin_report <- function(species_name) {
+  data <- load_penguins()
+  data <- clean_penguins(data)
+  data <- filter_species(data, species_name)
+  
+  summarise_penguins(data)
+  plot_penguins(data, species_name)
+}
+
+#test
+clean_penguins(penguins)
+filter_species(penguins, "Adelie")
+plot_penguins(penguins, "Gentoo")
+```
+
+
