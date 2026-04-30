@@ -308,4 +308,56 @@ plot_penguin_bills(penguins, "Adelie", island, species, title = NULL)
 
 plot_penguin_bills(penguins, "Adelie", body_mass_g, flipper_length_mm, title = NULL)
 ```
+Exercise 4: Recursion and Iteration
 
+The Fibonacci sequence is a classic example of a problem that can be solved using both iteration and recursion, and it illustrates the trade-offs between these two approaches.
+
+1.Write a function in R to compute the nth Fibonacci number iteratively.
+2.Write a function in R to compute the nth Fibonacci number recursively.
+3.Compare the performance of the iterative and recursive implementations by computing the 30th Fibonacci number. What is the difference? Why does this difference occur?
+
+```{r}
+fibonacci_iter <- function(n) {
+  if (n < 0) stop("n must be non-negative")
+  
+  if (n == 0) return(0)
+  if (n == 1) return(1)
+  
+  a <- 0
+  b <- 1
+  
+  for(i in 2:n) {
+    temp <- a+b
+    a <- b
+    b <- temp
+  }
+  return(b)
+}
+
+fibonacci_iter(6)
+```
+
+```{r}
+fibonacci_recu <- function(n) {
+  if (n < 0) stop("n must be non-negative")
+  
+  if (n == 0) return(0)
+  if (n == 1) return(1)
+  
+  return(fibonacci_recu(n - 1) + fibonacci_recu(n - 2))
+}
+
+fibonacci_recu(6)
+```
+
+```{r}
+system.time(fibonacci_iter(30))
+system.time(fibonacci_recu(30))
+```
+The recursive version is much slower because it recomputes the same values many times.
+For example, fib_rec(3) is calculated repeatedly in different branches.
+
+This leads to exponential time complexity O(2^n).
+
+In contrast, the iterative version computes each value only once,
+resulting in linear time complexity O(n).
