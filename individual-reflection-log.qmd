@@ -170,3 +170,15 @@ One R function I encountered this week that I had not used before is `cli::cli_a
 
 Overall, this week helped me move from simply writing working code to writing **well-structured, reusable, and robust functions**, with clearer separation of concerns and better error handling.
 
+### Week 3 — Debugging
+
+Did you use an LLM to help debug? What did you share with it, and what approach did it take? Was the answer correct? How did you verify it?
+
+Yes, I used an LLM to help debug several exercises this week. I shared the relevant R code, the full error messages, and in some cases the traceback output from `rlang::last_trace()`. I also described what I expected the code to do before running it. The LLM mostly took an explanatory approach rather than immediately rewriting the code. It explained which layer the error came from (R, dplyr, knitr, or Quarto), pointed to the likely source line, and described concepts such as non-standard evaluation, recursive base cases, and namespace conflicts.
+
+Most of the explanations were correct. I verified them by re-running the code after each change and checking whether the behaviour matched the explanation. For example, after adding `{{ group_var }}` to `group_by()`, the summarisation function worked correctly. In the recursive factorial exercise, I used `browser()` to inspect how `n` changed during recursion and confirmed that the recursion never reached the stopping condition. In the Quarto exercise, I verified the explanations by fixing one error at a time and observing how the next layer of errors appeared during rendering.
+
+What debugging habit or strategy do you want to deliberately practise going
+forward? Why that one?
+
+One debugging habit I want to deliberately practise going forward is slowing down before asking for help and first predicting what the code should do. This week showed me that spending even 30 seconds reading the code carefully makes debugging more structured and helps me understand error messages more effectively. I also want to practise reading traceback outputs more systematically, because they make it easier to locate the real source of an error inside nested function calls.

@@ -1,0 +1,19 @@
+---
+title: "Broken Quarto"
+format: pdf
+editor: visual
+---
+
+```{r}
+    library(palmerpenguins)
+    head(penguins)
+    library(ggplot2)
+    library(dplyr)
+```
+
+```{r}
+    penguins |>
+      filter(species == "Adelie") |>
+      ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
+      geom_point()
+```
