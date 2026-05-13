@@ -182,3 +182,21 @@ What debugging habit or strategy do you want to deliberately practise going
 forward? Why that one?
 
 One debugging habit I want to deliberately practise going forward is slowing down before asking for help and first predicting what the code should do. This week showed me that spending even 30 seconds reading the code carefully makes debugging more structured and helps me understand error messages more effectively. I also want to practise reading traceback outputs more systematically, because they make it easier to locate the real source of an error inside nested function calls.
+
+### Week 4 — Version Control & Collaborative Coding
+
+Describe a confusing or frustrating moment with git this week. How did you resolve it? What do you now understand that you didn't before?
+
+How does committing code frequently change how you think about your work? Have you noticed yourself structuring tasks differently because of it?
+
+This week, one confusing moment for me was understanding the difference between git pull and git fetch. At first, I thought both commands simply downloaded updates from GitHub, so I used git pull automatically without thinking about what it actually did.
+
+During the exercises, I realized that git pull not only downloads remote commits but also immediately merges them into the local branch. I became confused when trying to understand why the course asked us to use git fetch first before merging manually.
+
+I resolved this by testing the commands step by step and comparing the repository state before and after each command. Using git log HEAD..origin/main and git diff HEAD origin/main helped me understand that fetch allows me to inspect remote changes safely before modifying my own working files.
+
+Now I understand that git fetch is especially useful in shared repositories because it gives more control over collaboration and reduces the risk of unexpected merges or conflicts.
+
+Committing code frequently has also started to change how I think about my work. Instead of treating an assignment as one large task, I now divide it into smaller steps and commit after completing each meaningful change. This makes the development process feel more organized and less risky because I can always return to an earlier version if something breaks.
+
+I have also noticed myself planning tasks more carefully before coding. Since commits create a visible history of progress, I naturally think more about separating features, fixes, and experiments into smaller logical units.
